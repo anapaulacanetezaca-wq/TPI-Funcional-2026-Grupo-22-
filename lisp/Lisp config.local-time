@@ -1,0 +1,17 @@
+;; =====================================================================
+;; CARGA DE LIBRERÍAS EXTERNAS (QUICKLISP)
+;; =====================================================================
+(ql:quickload "local-time")
+
+;; =====================================================================
+;; FUNCIÓN: registrar-auditoria-humana
+;; NATURALEZA: Impura (Posee efectos secundarios porque imprime en la terminal).
+;; ESTRATEGIA: Conversión de tipos de datos y formateo temporal.
+;; IMPACTO: No destructiva (No muta ninguna variable, solo lee y transforma).
+;; =====================================================================
+
+(defun registrar-auditoria-humana (timestamp color-anterior color-nuevo)
+  (let* ((objeto-tiempo (local-time:unix-to-timestamp timestamp))
+         (fecha-legible (local-time:format-timestring nil objeto-tiempo)))
+    (format t "Tiempo [~a]: la luz ha cambiado de ~a a ~a~%" 
+            fecha-legible color-anterior color-nuevo)))
