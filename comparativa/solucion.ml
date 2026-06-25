@@ -1,8 +1,3 @@
-========================================================
-* Requerimiento 1: Estado de transición                    
-
-======================================================== 
-
 let transicion color_actual cambiar_a =
   match (color_actual, cambiar_a) with
   | ("en-rojo", "verde") -> (color_actual, "cambiar-a-verde")
@@ -10,10 +5,6 @@ let transicion color_actual cambiar_a =
   | ("en-amarillo", "rojo") -> (color_actual, "cambiar-a-rojo")
   | _ -> (color_actual, "accion-por-defecto")
 ;;
-
-========================================================
- Requerimiento 2: Temporizador Automático                      
-======================================================== 
 
 let timer timestamp =
   let posicion_en_ciclo = timestamp mod 216 in
