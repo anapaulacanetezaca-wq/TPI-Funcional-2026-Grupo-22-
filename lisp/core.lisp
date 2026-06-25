@@ -89,7 +89,7 @@
 ;; =====================================================================
 (defun ciclos-por-tiempo (minutos)
   (let ((segundos-totales (* minutos 60)))
-    (floor (/ segundos-totales 216))))
+    (floor (/ segundos-totales 225))))
 ;; =====================================================================
 ;; =====================================================================
 ;; Requerimiento 6: Informe de Distribución Temporal
@@ -147,7 +147,7 @@
 ;; ---------------------------------------------------------
 ;; Pruebas para Requerimiento 4: Análisis de Ciclos Semafóricos
 ;; ---------------------------------------------------------
-;; Normal: Evaluación del ciclo con nuestros tiempos de negocio (216s)
+;; Normal: Evaluación del ciclo con nuestros tiempos de negocio (225s)
 (recomendacion-ciclo (duracion-ciclo 90 6 120))
 
 ;; Alternativo: Evaluación de un ciclo ficticio muy corto (ej: 20s)
