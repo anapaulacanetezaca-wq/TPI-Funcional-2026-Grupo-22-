@@ -6,16 +6,34 @@
 ;; IMPACTO EN MEMORIA: No destructiva (Construye y devuelve una lista nueva sin mutar argumentos).
 ;; =====================================================================
 (defun transicion (color-actual cambiar-a)
-  (cond
-    ((and (eq color-actual 'en-rojo) (eq cambiar-a 'verde))
-     (list color-actual "cambiar-a-verde"))
-    
-    ((and (eq color-actual 'en-verde) (eq cambiar-a 'amarillo))
-     (list color-actual "cambiar-a-amarillo"))
-    
-    ((and (eq color-actual 'en-amarillo) (eq cambiar-a 'rojo))
-     (list color-actual "cambiar-a-rojo"))
-    
+  (case color-actual
+    (en-rojo
+     (case cambiar-a
+       (verde (list color-actual "cambiar-a-verde"))
+       (rojo-intermitente (list color-actual "cambiar-a-rojo-intermitente"))
+       (t (list color-actual 'accion-por-defecto))))
+    (rojo-intermitente
+     (case cambiar-a
+       (verde (list color-actual "cambiar-a-verde"))
+       (t (list color-actual 'accion-por-defecto))))
+    (en-verde
+     (case cambiar-a
+       (amarillo (list color-actual "cambiar-a-amarillo"))
+       (verde-intermitente (list color-actual "cambiar-a-verde-intermitente"))
+       (t (list color-actual 'accion-por-defecto))))
+    (verde-intermitente
+     (case cambiar-a
+       (amarillo (list color-actual "cambiar-a-amarillo"))
+       (t (list color-actual 'accion-por-defecto))))
+    (en-amarillo
+     (case cambiar-a
+       (rojo (list color-actual "cambiar-a-rojo"))
+       (amarillo-intermitente (list color-actual "cambiar-a-amarillo-intermitente"))
+       (t (list color-actual 'accion-por-defecto))))
+    (amarillo-intermitente
+     (case cambiar-a
+       (rojo (list color-actual "cambiar-a-rojo"))
+       (t (list color-actual 'accion-por-defecto))))
     (t (list color-actual 'accion-por-defecto))))
 ;; =====================================================================
 ;; Requerimiento 2: Temporizador Automático
@@ -63,7 +81,7 @@
     ((> duracion 150) "Evitar: El ciclo es demasiado largo (mayor a 150s).")
     (t "Correcto: El ciclo está dentro del rango óptimo psicológico.")))
 ;; =====================================================================
-Requerimiento 5: Planificación Temporal
+;;Requerimiento 5: Planificación Temporal
 ;; FUNCIÓN: ciclos-por-tiempo
 ;; NATURALEZA: Pura.
 ;; ESTRATEGIA DE CONTROL: Aritmética simple y funciones de truncamiento.
@@ -73,17 +91,22 @@ Requerimiento 5: Planificación Temporal
   (let ((segundos-totales (* minutos 60)))
     (floor (/ segundos-totales 216))))
 ;; =====================================================================
-Requerimiento 6: Informe de Distribución Temporal
-;; FUNCIÓN: informe-distribucion
+;; =====================================================================
+;; Requerimiento 6: Informe de Distribución Temporal
+;; FUNCIÓN: informe
 ;; NATURALEZA: Pura (Retorna una lista asociativa estructurada de datos sin imprimir por pantalla).
 ;; ESTRATEGIA DE CONTROL: Composición matemática y constructores de listas.
 ;; IMPACTO EN MEMORIA: No destructiva.
-(defun informe-distribucion ()
-  (let ((total-ciclo 216.0))
-    (list 
-     (list 'porcentaje-rojo (* (/ 90 total-ciclo) 100))
-     (list 'porcentaje-amarillo (* (/ 6 total-ciclo) 100))
-     (list 'porcentaje-verde (* (/ 120 total-ciclo) 100)))))
+;; =====================================================================
+(defun informe ()
+  (let ((total-ciclo 225.0))
+    (list
+     (list 'rojo (* (/ 90 total-ciclo) 100))
+     (list 'rojo-intermitente (* (/ 3 total-ciclo) 100))
+     (list 'verde (* (/ 120 total-ciclo) 100))
+     (list 'verde-intermitente (* (/ 3 total-ciclo) 100))
+     (list 'amarillo (* (/ 6 total-ciclo) 100))
+     (list 'amarillo-intermitente (* (/ 3 total-ciclo) 100)))))
 ;; =====================================================================
 ;; REQUERIMIENTO 7: Aseguramiento de la Calidad
 ;; Pruebas para Requerimiento 1: transicion
@@ -149,8 +172,7 @@ Requerimiento 6: Informe de Distribución Temporal
 ;; Pruebas para REQ 6: informe-distribucion
 ;; ---------------------------------------------------------
 ;; Normal: Ejecución sin argumentos como fue definida
-(informe-distribucion)
+(informe)
 
 ;; Error: Intentar pasar un parámetro a una función que no los recibe
-(informe-distribucion 1)
-
+(informe 1)
