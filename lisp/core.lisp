@@ -4,6 +4,12 @@
 ;; Objetivo: mostrar el tiempo Unix en formato legible para humanos.
 ;; =====================================================================
 (ql:quickload :local-time)
+;; =====================================================================
+;; FUNCIÓN: formatear-tiempo
+;; NATURALEZA: Pura (Para un mismo timestamp devuelve la misma fecha legible).
+;; ESTRATEGIA DE CONTROL: Conversión de datos mediante librería externa.
+;; IMPACTO EN MEMORIA: No destructiva.
+;; =====================================================================
 (defun formatear-tiempo (timestamp)
   (local-time:format-timestring
    nil
@@ -15,7 +21,7 @@
 ;; Requerimiento 1: Estado de transicion 
 ;; FUNCIÓN: transicion
 ;; NATURALEZA: Pura (Retorna siempre el mismo resultado para los mismos parámetros).
-;; ESTRATEGIA DE CONTROL: Condicional (Evaluación de casos mediante cond).
+;; ESTRATEGIA DE CONTROL: Condicional (Evaluación de casos mediante case).
 ;; IMPACTO EN MEMORIA: No destructiva (Construye y devuelve una lista nueva sin mutar argumentos).
 ;; =====================================================================
 (defun transicion (color-actual cambiar-a)
@@ -87,7 +93,7 @@
 (defun duracion-ciclo (tiempo-rojo tiempo-amarillo tiempo-verde)
   (+ tiempo-rojo tiempo-amarillo tiempo-verde))
 ;; =====================================================================
-; FUNCIÓN: recomendacion-ciclo
+;; FUNCIÓN: recomendacion-ciclo
 ;; NATURALEZA: Pura.
 ;; ESTRATEGIA DE CONTROL: Condicional estructurada.
 ;; IMPACTO EN MEMORIA: No destructiva.
@@ -129,67 +135,67 @@
 ;; Pruebas para Requerimiento 1: transicion
 ;; ---------------------------------------------------------
 ;; Normal: Transición válida esperada
-(transicion 'en-rojo 'verde)
+;;(transicion 'en-rojo 'verde)
 
 ;; Alternativo: Transición inválida que activa el caso por defecto
-(transicion 'en-verde 'verde)
+;;(transicion 'en-verde 'verde)
 
 ;; Error: Omitir comillas simples (Lisp intentará evaluar variables no definidas)
-(transicion en-rojo verde)
+;;(transicion en-rojo verde)
 
 ;; ---------------------------------------------------------
 ;; Pruebas para Requerimiento 2: timer
 ;; ---------------------------------------------------------
 ;; Normal: Un timestamp cualquiera en tiempo Unix
-(timer 1718380000)
+;;(timer 1718380000)
 
 ;; Alternativo: El segundo exacto 0 del ciclo (debe dar rojo)
-(timer 0)
+;;(timer 0)
 
 ;; Error: Pasar un string en lugar de un entero (falla la función matemática 'mod')
-(timer "hora actual")
+;;(timer "hora actual")
 
 ;; ---------------------------------------------------------
 ;; Pruebas para Requerimiento 3: registrar-auditoria
 ;; ---------------------------------------------------------
 ;; Normal: Registro estándar de cambio de estado
-(registrar-auditoria 1718380000 'en-rojo 'en-verde)
+;;(registrar-auditoria 1718380000 'en-rojo 'en-verde)
 
 ;; Alternativo: Pasar strings en lugar de símbolos (funciona igual gracias a ~a)
-(registrar-auditoria "14:30" "Rojo" "Verde")
+;;(registrar-auditoria "14:30" "Rojo" "Verde")
 
 ;; Error: Faltan argumentos requeridos en la firma de la función
-(registrar-auditoria 1718380000 'en-rojo)
+;;(registrar-auditoria 1718380000 'en-rojo)
 
 ;; ---------------------------------------------------------
 ;; Pruebas para Requerimiento 4: Análisis de Ciclos Semafóricos
 ;; ---------------------------------------------------------
 ;; Normal: Evaluación del ciclo con nuestros tiempos de negocio (225s)
-(recomendacion-ciclo (duracion-ciclo 90 9 126))
+;;(recomendacion-ciclo (duracion-ciclo 90 9 126))
 
 ;; Alternativo: Evaluación de un ciclo ficticio muy corto (ej: 20s)
-(recomendacion-ciclo 20)
+;;(recomendacion-ciclo 20)
 
 ;; Error: Intentar sumar un tipo de dato incompatible
-(duracion-ciclo 90 'seis 120)
+;;(duracion-ciclo 90 'seis 120)
 
 ;; ---------------------------------------------------------
 ;; Pruebas para REQ 5: ciclos-por-tiempo
 ;; ---------------------------------------------------------
 ;; Normal: Calcular cuántos ciclos entran en 15 minutos
-(ciclos-por-tiempo 15)
+;;(ciclos-por-tiempo 15)
 
 ;; Alternativo: Calcular ciclos en 0 minutos
-(ciclos-por-tiempo 0)
+;;(ciclos-por-tiempo 0)
 
 ;; Error: Proveer un símbolo en lugar de un número para multiplicar
-(ciclos-por-tiempo 'quince)
+;;(ciclos-por-tiempo 'quince)
 
 ;; ---------------------------------------------------------
-;; Pruebas para REQ 6: informe-distribucion
+;; Pruebas para REQ 6: informe
 ;; ---------------------------------------------------------
 ;; Normal: Ejecución sin argumentos como fue definida
-(informe)
+;;(informe)
 
 ;; Error: Intentar pasar un parámetro a una función que no los recibe
-(informe 1)
+;;(informe 1)
