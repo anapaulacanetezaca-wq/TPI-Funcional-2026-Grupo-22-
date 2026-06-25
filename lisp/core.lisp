@@ -148,7 +148,7 @@
 ;; Pruebas para Requerimiento 4: Análisis de Ciclos Semafóricos
 ;; ---------------------------------------------------------
 ;; Normal: Evaluación del ciclo con nuestros tiempos de negocio (225s)
-(recomendacion-ciclo (duracion-ciclo 90 6 120))
+(recomendacion-ciclo (duracion-ciclo 90 9 126))
 
 ;; Alternativo: Evaluación de un ciclo ficticio muy corto (ej: 20s)
 (recomendacion-ciclo 20)
