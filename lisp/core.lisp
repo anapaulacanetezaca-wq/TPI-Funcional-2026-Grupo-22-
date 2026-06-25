@@ -25,11 +25,14 @@
 ;; IMPACTO EN MEMORIA: No destructiva (No muta el estado, realiza un cálculo aritmético aislado).
 ;; =====================================================================
 (defun timer (timestamp)
-  (let ((posicion-en-ciclo (mod timestamp 216)))
+  (let ((posicion-en-ciclo (mod timestamp 225)))
     (cond
-      ((< posicion-en-ciclo 90) 'rojo)
-      ((< posicion-en-ciclo 96) 'amarillo)
-      (t 'verde))))
+      ((< posicion-en-ciclo 90) 'en-rojo)
+      ((< posicion-en-ciclo 93) 'rojo-intermitente)
+      ((< posicion-en-ciclo 213) 'en-verde)
+      ((< posicion-en-ciclo 216) 'verde-intermitente)
+      ((< posicion-en-ciclo 222) 'en-amarillo)
+      (t 'amarillo-intermitente))))
 ;; =====================================================================
 ;; Requerimiento 3: Sistema de Auditoría
 ;; FUNCIÓN: registrar-auditoria
