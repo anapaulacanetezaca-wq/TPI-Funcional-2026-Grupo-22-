@@ -1,4 +1,17 @@
 ;; =====================================================================
+;; Fase 2: Integración con Quicklisp
+;; Librería utilizada: local-time
+;; Objetivo: mostrar el tiempo Unix en formato legible para humanos.
+;; =====================================================================
+(ql:quickload :local-time)
+(defun formatear-tiempo (timestamp)
+  (local-time:format-timestring
+   nil
+   (local-time:unix-to-timestamp timestamp)
+   :format '(:year "-" (:month 2) "-" (:day 2)
+             " "
+             (:hour 2) ":" (:min 2) ":" (:sec 2))))
+;; =====================================================================
 ;; Requerimiento 1: Estado de transicion 
 ;; FUNCIÓN: transicion
 ;; NATURALEZA: Pura (Retorna siempre el mismo resultado para los mismos parámetros).
@@ -51,6 +64,7 @@
       ((< posicion-en-ciclo 216) 'verde-intermitente)
       ((< posicion-en-ciclo 222) 'en-amarillo)
       (t 'amarillo-intermitente))))
+
 ;; =====================================================================
 ;; Requerimiento 3: Sistema de Auditoría
 ;; FUNCIÓN: registrar-auditoria
@@ -59,7 +73,10 @@
 ;; IMPACTO EN MEMORIA: No destructiva (No altera el estado de las variables existentes).
 ;; =====================================================================
 (defun registrar-auditoria (timestamp color-anterior color-nuevo)
-  (format t "Tiempo ~a: la luz ha cambiado de ~a a ~a~%" timestamp color-anterior color-nuevo))
+  (format t "Tiempo ~a: la luz ha cambiado de ~a a ~a~%"
+          (formatear-tiempo timestamp)
+          color-anterior
+          color-nuevo))
 ;; =====================================================================
 ;; Requerimiento 4: Análisis de Ciclos Semafóricos
 ;; FUNCIÓN: duracion-ciclo
