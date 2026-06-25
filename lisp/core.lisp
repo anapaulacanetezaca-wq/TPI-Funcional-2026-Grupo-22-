@@ -1,21 +1,58 @@
 ;; =====================================================================
+;; Fase 2: Integración con Quicklisp
+;; Librería utilizada: local-time
+;; Objetivo: mostrar el tiempo Unix en formato legible para humanos.
+;; =====================================================================
+(ql:quickload :local-time)
+;; =====================================================================
+;; FUNCIÓN: formatear-tiempo
+;; NATURALEZA: Pura (Para un mismo timestamp devuelve la misma fecha legible).
+;; ESTRATEGIA DE CONTROL: Conversión de datos mediante librería externa.
+;; IMPACTO EN MEMORIA: No destructiva.
+;; =====================================================================
+(defun formatear-tiempo (timestamp)
+  (local-time:format-timestring
+   nil
+   (local-time:unix-to-timestamp timestamp)
+   :format '(:year "-" (:month 2) "-" (:day 2)
+             " "
+             (:hour 2) ":" (:min 2) ":" (:sec 2))))
+;; =====================================================================
 ;; Requerimiento 1: Estado de transicion 
 ;; FUNCIÓN: transicion
 ;; NATURALEZA: Pura (Retorna siempre el mismo resultado para los mismos parámetros).
-;; ESTRATEGIA DE CONTROL: Condicional (Evaluación de casos mediante cond).
+;; ESTRATEGIA DE CONTROL: Condicional (Evaluación de casos mediante case).
 ;; IMPACTO EN MEMORIA: No destructiva (Construye y devuelve una lista nueva sin mutar argumentos).
 ;; =====================================================================
 (defun transicion (color-actual cambiar-a)
-  (cond
-    ((and (eq color-actual 'en-rojo) (eq cambiar-a 'verde))
-     (list color-actual "cambiar-a-verde"))
-    
-    ((and (eq color-actual 'en-verde) (eq cambiar-a 'amarillo))
-     (list color-actual "cambiar-a-amarillo"))
-    
-    ((and (eq color-actual 'en-amarillo) (eq cambiar-a 'rojo))
-     (list color-actual "cambiar-a-rojo"))
-    
+  (case color-actual
+    (en-rojo
+     (case cambiar-a
+       (verde (list color-actual "cambiar-a-verde"))
+       (rojo-intermitente (list color-actual "cambiar-a-rojo-intermitente"))
+       (t (list color-actual 'accion-por-defecto))))
+    (rojo-intermitente
+     (case cambiar-a
+       (verde (list color-actual "cambiar-a-verde"))
+       (t (list color-actual 'accion-por-defecto))))
+    (en-verde
+     (case cambiar-a
+       (amarillo (list color-actual "cambiar-a-amarillo"))
+       (verde-intermitente (list color-actual "cambiar-a-verde-intermitente"))
+       (t (list color-actual 'accion-por-defecto))))
+    (verde-intermitente
+     (case cambiar-a
+       (amarillo (list color-actual "cambiar-a-amarillo"))
+       (t (list color-actual 'accion-por-defecto))))
+    (en-amarillo
+     (case cambiar-a
+       (rojo (list color-actual "cambiar-a-rojo"))
+       (amarillo-intermitente (list color-actual "cambiar-a-amarillo-intermitente"))
+       (t (list color-actual 'accion-por-defecto))))
+    (amarillo-intermitente
+     (case cambiar-a
+       (rojo (list color-actual "cambiar-a-rojo"))
+       (t (list color-actual 'accion-por-defecto))))
     (t (list color-actual 'accion-por-defecto))))
 ;; =====================================================================
 ;; Requerimiento 2: Temporizador Automático
@@ -25,11 +62,15 @@
 ;; IMPACTO EN MEMORIA: No destructiva (No muta el estado, realiza un cálculo aritmético aislado).
 ;; =====================================================================
 (defun timer (timestamp)
-  (let ((posicion-en-ciclo (mod timestamp 216)))
+  (let ((posicion-en-ciclo (mod timestamp 225)))
     (cond
-      ((< posicion-en-ciclo 90) 'rojo)
-      ((< posicion-en-ciclo 96) 'amarillo)
-      (t 'verde))))
+      ((< posicion-en-ciclo 90) 'en-rojo)
+      ((< posicion-en-ciclo 93) 'rojo-intermitente)
+      ((< posicion-en-ciclo 213) 'en-verde)
+      ((< posicion-en-ciclo 216) 'verde-intermitente)
+      ((< posicion-en-ciclo 222) 'en-amarillo)
+      (t 'amarillo-intermitente))))
+
 ;; =====================================================================
 ;; Requerimiento 3: Sistema de Auditoría
 ;; FUNCIÓN: registrar-auditoria
@@ -38,7 +79,10 @@
 ;; IMPACTO EN MEMORIA: No destructiva (No altera el estado de las variables existentes).
 ;; =====================================================================
 (defun registrar-auditoria (timestamp color-anterior color-nuevo)
-  (format t "Tiempo ~a: la luz ha cambiado de ~a a ~a~%" timestamp color-anterior color-nuevo))
+  (format t "Tiempo ~a: la luz ha cambiado de ~a a ~a~%"
+          (formatear-tiempo timestamp)
+          color-anterior
+          color-nuevo))
 ;; =====================================================================
 ;; Requerimiento 4: Análisis de Ciclos Semafóricos
 ;; FUNCIÓN: duracion-ciclo
@@ -49,7 +93,7 @@
 (defun duracion-ciclo (tiempo-rojo tiempo-amarillo tiempo-verde)
   (+ tiempo-rojo tiempo-amarillo tiempo-verde))
 ;; =====================================================================
-; FUNCIÓN: recomendacion-ciclo
+;; FUNCIÓN: recomendacion-ciclo
 ;; NATURALEZA: Pura.
 ;; ESTRATEGIA DE CONTROL: Condicional estructurada.
 ;; IMPACTO EN MEMORIA: No destructiva.
@@ -60,7 +104,7 @@
     ((> duracion 150) "Evitar: El ciclo es demasiado largo (mayor a 150s).")
     (t "Correcto: El ciclo está dentro del rango óptimo psicológico.")))
 ;; =====================================================================
-Requerimiento 5: Planificación Temporal
+;;Requerimiento 5: Planificación Temporal
 ;; FUNCIÓN: ciclos-por-tiempo
 ;; NATURALEZA: Pura.
 ;; ESTRATEGIA DE CONTROL: Aritmética simple y funciones de truncamiento.
@@ -68,86 +112,90 @@ Requerimiento 5: Planificación Temporal
 ;; =====================================================================
 (defun ciclos-por-tiempo (minutos)
   (let ((segundos-totales (* minutos 60)))
-    (floor (/ segundos-totales 216))))
+    (floor (/ segundos-totales 225))))
 ;; =====================================================================
-Requerimiento 6: Informe de Distribución Temporal
-;; FUNCIÓN: informe-distribucion
+;; =====================================================================
+;; Requerimiento 6: Informe de Distribución Temporal
+;; FUNCIÓN: informe
 ;; NATURALEZA: Pura (Retorna una lista asociativa estructurada de datos sin imprimir por pantalla).
 ;; ESTRATEGIA DE CONTROL: Composición matemática y constructores de listas.
 ;; IMPACTO EN MEMORIA: No destructiva.
-(defun informe-distribucion ()
-  (let ((total-ciclo 216.0))
-    (list 
-     (list 'porcentaje-rojo (* (/ 90 total-ciclo) 100))
-     (list 'porcentaje-amarillo (* (/ 6 total-ciclo) 100))
-     (list 'porcentaje-verde (* (/ 120 total-ciclo) 100)))))
+;; =====================================================================
+(defun informe ()
+  (let ((total-ciclo 225.0))
+    (list
+     (list 'rojo (* (/ 90 total-ciclo) 100))
+     (list 'rojo-intermitente (* (/ 3 total-ciclo) 100))
+     (list 'verde (* (/ 120 total-ciclo) 100))
+     (list 'verde-intermitente (* (/ 3 total-ciclo) 100))
+     (list 'amarillo (* (/ 6 total-ciclo) 100))
+     (list 'amarillo-intermitente (* (/ 3 total-ciclo) 100)))))
 ;; =====================================================================
 ;; REQUERIMIENTO 7: Aseguramiento de la Calidad
 ;; Pruebas para Requerimiento 1: transicion
 ;; ---------------------------------------------------------
 ;; Normal: Transición válida esperada
-(transicion 'en-rojo 'verde)
+;;(transicion 'en-rojo 'verde)
 
 ;; Alternativo: Transición inválida que activa el caso por defecto
-(transicion 'en-verde 'verde)
+;;(transicion 'en-verde 'verde)
 
 ;; Error: Omitir comillas simples (Lisp intentará evaluar variables no definidas)
-(transicion en-rojo verde)
+;;(transicion en-rojo verde)
 
 ;; ---------------------------------------------------------
 ;; Pruebas para Requerimiento 2: timer
 ;; ---------------------------------------------------------
 ;; Normal: Un timestamp cualquiera en tiempo Unix
-(timer 1718380000)
+;;(timer 1718380000)
 
 ;; Alternativo: El segundo exacto 0 del ciclo (debe dar rojo)
-(timer 0)
+;;(timer 0)
 
 ;; Error: Pasar un string en lugar de un entero (falla la función matemática 'mod')
-(timer "hora actual")
+;;(timer "hora actual")
 
 ;; ---------------------------------------------------------
 ;; Pruebas para Requerimiento 3: registrar-auditoria
 ;; ---------------------------------------------------------
 ;; Normal: Registro estándar de cambio de estado
-(registrar-auditoria 1718380000 'en-rojo 'en-verde)
+;;(registrar-auditoria 1718380000 'en-rojo 'en-verde)
 
 ;; Alternativo: Pasar strings en lugar de símbolos (funciona igual gracias a ~a)
-(registrar-auditoria "14:30" "Rojo" "Verde")
+;;(registrar-auditoria "14:30" "Rojo" "Verde")
 
 ;; Error: Faltan argumentos requeridos en la firma de la función
-(registrar-auditoria 1718380000 'en-rojo)
+;;(registrar-auditoria 1718380000 'en-rojo)
 
 ;; ---------------------------------------------------------
 ;; Pruebas para Requerimiento 4: Análisis de Ciclos Semafóricos
 ;; ---------------------------------------------------------
-;; Normal: Evaluación del ciclo con nuestros tiempos de negocio (216s)
-(recomendacion-ciclo (duracion-ciclo 90 6 120))
+;; Normal: Evaluación del ciclo con nuestros tiempos de negocio (225s)
+;;(recomendacion-ciclo (duracion-ciclo 90 9 126))
 
 ;; Alternativo: Evaluación de un ciclo ficticio muy corto (ej: 20s)
-(recomendacion-ciclo 20)
+;;(recomendacion-ciclo 20)
 
 ;; Error: Intentar sumar un tipo de dato incompatible
-(duracion-ciclo 90 'seis 120)
+;;(duracion-ciclo 90 'seis 120)
 
 ;; ---------------------------------------------------------
 ;; Pruebas para REQ 5: ciclos-por-tiempo
 ;; ---------------------------------------------------------
 ;; Normal: Calcular cuántos ciclos entran en 15 minutos
-(ciclos-por-tiempo 15)
+;;(ciclos-por-tiempo 15)
 
 ;; Alternativo: Calcular ciclos en 0 minutos
-(ciclos-por-tiempo 0)
+;;(ciclos-por-tiempo 0)
 
 ;; Error: Proveer un símbolo en lugar de un número para multiplicar
-(ciclos-por-tiempo 'quince)
+;;(ciclos-por-tiempo 'quince)
 
 ;; ---------------------------------------------------------
-;; Pruebas para REQ 6: informe-distribucion
+;; Pruebas para REQ 6: informe
 ;; ---------------------------------------------------------
 ;; Normal: Ejecución sin argumentos como fue definida
-(informe-distribucion)
+;;(informe)
 
 ;; Error: Intentar pasar un parámetro a una función que no los recibe
-(informe-distribucion 1)
-
+;;(informe 1)
